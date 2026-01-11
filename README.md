@@ -1,11 +1,44 @@
 # trp_env
 Two Resource Problem Environment with Mujoco
 
-## Install
+# Installation
+
+## Dependencies
+- Anaconda 3 with Python 3.9 and OpenCV installed.
+- Ubuntu 24.04
+
+## Setup
 ```shell
-git clone ssh://git@gitlab:50002/n-yoshida/trp_env.git
-pip install -e trp_env
+conda create -n trp_env python=3.9
+conda activate trp_env
+conda install -c conda-forge opencv
+
+# try to install mujoco using pip
+pip install mujoco==2.3.1.post1
+# if mujoco fails to install, try to install it using conda
+conda install -c conda-forge mujoco
+
+pip install trp_env
 ```
+
+## Recent Updates
+This version introduces several improvements to the environment's rendering pipeline and overall stability:
+- **OpenCV Integration**: Added support for real-time visualization using OpenCV.
+- **Dependency Optimization**: Updated internal rendering logic to ensure compatibility with modern Mujoco wrappers.
+
+## Rendering with OpenCV
+To utilize OpenCV for visualization, you must ensure that your environment's image processing libraries are correctly configured. 
+
+### Important: Update libtiff
+There is a known compatibility issue with older versions of `libtiff` and Mujoco rendering. Before running the environment with OpenCV, please update the library using conda:
+
+```shell
+conda update libtiff
+```
+
+### Visualization Example
+To display the environment using OpenCV, you can capture the RGB frame and render it in a window:
+
 
 ## Usage
 ```python
@@ -14,9 +47,7 @@ import trp_env
 
 env = gymnasium.make("trp_env:AntTRP-v1")
 
-env.seed(42)  # Seeding
-
-obs, info = env.reset()
+obs, info = env.reset(seed=42)
 
 done = False
 
