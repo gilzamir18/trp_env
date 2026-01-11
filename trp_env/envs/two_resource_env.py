@@ -94,6 +94,8 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                  width=64,
                  height=64,
                  random_position=False,
+                 render_mode="human",
+                 camera_id=-1,
                  *args, **kwargs):
         """
 
@@ -149,6 +151,8 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
         self.show_move_line = show_move_line
         self.recognition_obs = recognition_obs
         self.random_position_at_reset = random_position
+        self.render_mode = render_mode
+        self.camera_id = camera_id
         
         self.objects = []
         
@@ -795,17 +799,14 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
         return im
     
     def render(
-            self,
-            mode='rgb_array',
-            camera_id=-1,
-            camera_name=None
+            self
     ):
-        if mode == 'human':
-            img = self.get_image(mode='rgb_array', camera_id=camera_id, camera_name=camera_name)
+        if self.render_mode == 'human':
+            img = self.get_image(mode='rgb_array', camera_id=self.camera_id, camera_name=None)
             import cv2
             cv2.imshow("TwoResourceEnv", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
             cv2.waitKey(1)
-            return img
+            return None
 
-        return self.get_image(mode=mode, camera_id=camera_id, camera_name=camera_name)
+        return self.get_image(mode=self.render_mode, camera_id=self.camera_id, camera_name=None)
 
