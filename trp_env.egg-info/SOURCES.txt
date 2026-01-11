@@ -24,5 +24,7 @@ trp_env/envs/models/realant.xml
 trp_env/envs/models/snake.xml
 trp_env/envs/models/swimmer.xml
 trp_env/envs/models/wheel.xml
+trp_env/envs/models/texture/grass.png
+trp_env/envs/models/texture/jari.png
 trp_env/wrappers/__init__.py
 trp_env/wrappers/vision.py

@@ -9,16 +9,7 @@ Two Resource Problem Environment with Mujoco
 
 ## Setup
 ```shell
-conda create -n trp_env python=3.9
-conda activate trp_env
-conda install -c conda-forge opencv
-
-# try to install mujoco using pip
-pip install mujoco==2.3.1.post1
-# if mujoco fails to install, try to install it using conda
-conda install -c conda-forge mujoco
-
-pip install trp_env
+conda env create -f environment.yml
 ```
 
 ## Recent Updates
@@ -47,7 +38,7 @@ import trp_env
 
 env = gymnasium.make("trp_env:AntTRP-v1")
 
-obs, info = env.reset(seed=42)
+obs, info = env.reset()
 
 done = False
 
@@ -115,12 +106,10 @@ Ego-centric vision setting: camera_id=0.
 import gymnasium
 import trp_env
 
-env = gymnasium.make("SmallLowGearAntTRP-v1", vision=True, width=64, height=64)
-env.reset()
+env = gymnasium.make("SmallLowGearAntTRP-v1", render_mode="rgb_array", camera_id=0, width=64, height=64)
+obs, info = env.reset()
 
 # RGB (0-255, size=64x64x3)
-vision = env.render(mode="rgb_array", camera_id=0)
+vision = env.render()
 
-# RGBD (0-255, size=64x64x4, depth values are also normalized into 0-255)
-vision = env.render(mode="rgbd_array", camera_id=0)
 ```
