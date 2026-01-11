@@ -15,7 +15,7 @@ conda env create -f environment.yml
 ## Recent Updates
 This version introduces several improvements to the environment's rendering pipeline and overall stability:
 - **OpenCV Integration**: Added support for real-time visualization using OpenCV.
-- **Dependency Optimization**: Updated internal rendering logic to ensure compatibility with modern Mujoco wrappers.
+- **Dependency Optimization**: Updated internal rendering logic to ensure compatibility with Mujoco wrappers.
 
 ## Rendering with OpenCV
 To utilize OpenCV for visualization, you must ensure that your environment's image processing libraries are correctly configured. 
