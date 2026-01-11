@@ -1,11 +1,35 @@
 # trp_env
 Two Resource Problem Environment with Mujoco
 
-## Install
+# Installation
+
+## Dependencies
+- Anaconda 3 with Python 3.9 and OpenCV installed.
+- Ubuntu 24.04
+
+## Setup
 ```shell
-git clone ssh://git@gitlab:50002/n-yoshida/trp_env.git
-pip install -e trp_env
+conda env create -f environment.yml
 ```
+
+## Recent Updates
+This version introduces several improvements to the environment's rendering pipeline and overall stability:
+- **OpenCV Integration**: Added support for real-time visualization using OpenCV.
+- **Dependency Optimization**: Updated internal rendering logic to ensure compatibility with Mujoco wrappers.
+
+## Rendering with OpenCV
+To utilize OpenCV for visualization, you must ensure that your environment's image processing libraries are correctly configured. 
+
+### Important: Update libtiff
+There is a known compatibility issue with older versions of `libtiff` and Mujoco rendering. Before running the environment with OpenCV, please update the library using conda:
+
+```shell
+conda update libtiff
+```
+
+### Visualization Example
+To display the environment using OpenCV, you can capture the RGB frame and render it in a window:
+
 
 ## Usage
 ```python
@@ -13,8 +37,6 @@ import gymnasium
 import trp_env
 
 env = gymnasium.make("trp_env:AntTRP-v1")
-
-env.seed(42)  # Seeding
 
 obs, info = env.reset()
 
@@ -84,12 +106,10 @@ Ego-centric vision setting: camera_id=0.
 import gymnasium
 import trp_env
 
-env = gymnasium.make("SmallLowGearAntTRP-v1", vision=True, width=64, height=64)
-env.reset()
+env = gymnasium.make("SmallLowGearAntTRP-v1", render_mode="rgb_array", camera_id=0, width=64, height=64)
+obs, info = env.reset()
 
 # RGB (0-255, size=64x64x3)
-vision = env.render(mode="rgb_array", camera_id=0)
+vision = env.render()
 
-# RGBD (0-255, size=64x64x4, depth values are also normalized into 0-255)
-vision = env.render(mode="rgbd_array", camera_id=0)
 ```

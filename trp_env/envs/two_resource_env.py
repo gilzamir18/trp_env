@@ -19,7 +19,6 @@ from gymnasium import utils
 BIG = 1e6
 DEFAULT_CAMERA_CONFIG = {}
 
-
 class FoodClass(Enum):
     BLUE = auto()
     RED = auto()
@@ -95,6 +94,8 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                  width=64,
                  height=64,
                  random_position=False,
+                 render_mode="human",
+                 camera_id=-1,
                  *args, **kwargs):
         """
 
@@ -150,6 +151,8 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
         self.show_move_line = show_move_line
         self.recognition_obs = recognition_obs
         self.random_position_at_reset = random_position
+        self.render_mode = render_mode
+        self.camera_id = camera_id
         
         self.objects = []
         
@@ -440,7 +443,7 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                 new_objs.append(self.generate_new_object(type_gen=typ))
             else:
                 new_objs.append(obj)
-        
+
         self.objects = new_objs
         
         info["interoception"] = self.get_interoception()
@@ -690,7 +693,7 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
             viewers.append(self.wrapped_env.mujoco_renderer._get_viewer(render_mode="depth_array"))
         else:
             viewers = [self.wrapped_env.mujoco_renderer._get_viewer(render_mode=mode)]
-        
+
         # Show Sensor Range
         if self.show_sensor_range:
             
@@ -701,6 +704,7 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                                        stop=self.sensor_span * 0.5,
                                        num=self.n_bins,
                                        endpoint=True)
+                                       
             for direction in sensor_range:
                 from scipy.spatial.transform import Rotation
                 def euler2mat(euler):
@@ -724,6 +728,7 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                     size=(0.1, 0.1, self.sensor_range),
                     rgba=(0, 1, 0, 0.8)
                 )
+
         
         # show movement of the agent
         if self.show_move_line:
@@ -735,8 +740,15 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                                  size=(0.05, 0.05, 0.05),
                                  rgba=(1, 0, 0, 0.3),
                                  emission=1)
-        
         # Show food
+        for v in viewers:
+            v.add_marker(pos=np.array([0.5, 0.5, 0.1]),
+                label=" ",
+                type=mujoco.mjtGeom.mjGEOM_SPHERE,
+                size=(0.5, 0.5, 0.5),
+                rgba=(1, 0, 0, 1),
+                emission=1)
+
         for obj in self.objects:
             ox, oy, typ = obj
             rgba = None
@@ -744,14 +756,23 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
                 rgba = (1, 0, 0, 1)
             elif typ is FoodClass.BLUE:
                 rgba = (0, 0, 1, 1)
-            
             if rgba:
                 for v in viewers:
+                    '''robot_x, robot_y = self.wrapped_env.get_body_com("torso")[:2]
+                    v.add_marker(
+                        pos=np.array([robot_x, robot_y, 0.5]), # Começa no robô
+                        size=(2, 2, 10.0), # Espessura e COMPRIMENTO (esticar muito)
+                        type=mujoco.mjtGeom.mjGEOM_LINE,
+                        rgba=(1, 1, 0, 1), # Amarelo brilhante
+                        label="DEBUG"
+                    )'''
+                    
                     v.add_marker(pos=np.array([ox, oy, 0.5]),
-                                 label=" ",
+                                 label=f" ",
                                  type=mujoco.mjtGeom.mjGEOM_SPHERE,
                                  size=(0.5, 0.5, 0.5),
-                                 rgba=rgba)
+                                 rgba=rgba,
+                                 emission=1)
         
         if mode == "rgbd_array":
             im = self.wrapped_env.mujoco_renderer.render(
@@ -778,9 +799,14 @@ class TwoResourceEnv(MujocoEnv, utils.EzPickle):
         return im
     
     def render(
-            self,
-            mode='human',
-            camera_id=None,
-            camera_name=None
+            self
     ):
-        return self.get_image(mode=mode, camera_id=camera_id, camera_name=camera_name)
+        if self.render_mode == 'human':
+            img = self.get_image(mode='rgb_array', camera_id=self.camera_id, camera_name=None)
+            import cv2
+            cv2.imshow("TwoResourceEnv", cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+            cv2.waitKey(1)
+            return None
+
+        return self.get_image(mode=self.render_mode, camera_id=self.camera_id, camera_name=None)
+
